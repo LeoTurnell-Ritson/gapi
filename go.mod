@@ -1,4 +1,4 @@
-module autocrud
+module gapi
 
 go 1.23.2
 
