@@ -1,4 +1,4 @@
-package autocrud
+package gapi
 
 import (
 	"github.com/gin-gonic/gin"
