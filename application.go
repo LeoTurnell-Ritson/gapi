@@ -23,7 +23,7 @@ func applyFilters[T any](db *gorm.DB, c *gin.Context, cfg *Config) *gorm.DB {
 	return query
 }
 
-func GET[T any](r *gin.Engine, db *gorm.DB, path string, id string, cfg *Config) {
+func GET[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 	r.GET(path, func(c *gin.Context) {
 		var objs []T
 		query := applyFilters[T](db, c, cfg)
