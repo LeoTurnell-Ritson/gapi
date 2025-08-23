@@ -1,4 +1,4 @@
-module gapi
+module github.com/LeoTurnell-Ritson/gapi
 
 go 1.23.2
 
