@@ -6,13 +6,14 @@ import (
 	"net/http"
 )
 
-type Filter[T any] func(db *gorm.DB, c *gin.Context) *gorm.DB
+type FilterFunc[T any] func(db *gorm.DB, c *gin.Context) *gorm.DB
 
 type Config struct {
-	Filters []Filter[any]
+	Handlers []gin.HandlerFunc
+	Filters []FilterFunc[any]
 }
 
-func applyFilters[T any](db *gorm.DB, c *gin.Context, cfg *Config) *gorm.DB {
+func getQueryFromConfig[T any](db *gorm.DB, c *gin.Context, cfg *Config) *gorm.DB {
 	query := db.Model(new(T))
 	if cfg.Filters != nil {
 		for _, filter := range cfg.Filters {
@@ -23,21 +24,31 @@ func applyFilters[T any](db *gorm.DB, c *gin.Context, cfg *Config) *gorm.DB {
 	return query
 }
 
+func getHandlersFromConfig(cfg *Config) []gin.HandlerFunc {
+	handlers := []gin.HandlerFunc{}
+
+	if cfg.Handlers != nil {
+		handlers = append(handlers, cfg.Handlers...)
+	}
+
+	return handlers
+}
+
 func GET[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
-	r.GET(path, func(c *gin.Context) {
+	r.GET(path, append(getHandlersFromConfig(cfg), func(c *gin.Context) {
 		var objs []T
-		query := applyFilters[T](db, c, cfg)
+		query := getQueryFromConfig[T](db, c, cfg)
 
 		if err := query.Find(&objs).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 		c.JSON(http.StatusOK, objs)
-	})
+	})...)
 
-	r.GET(path+"/:id", func(c *gin.Context) {
+	r.GET(path+"/:id", append(getHandlersFromConfig(cfg), func(c *gin.Context) {
 		var obj T
-		query := applyFilters[T](db, c, cfg)
+		query := getQueryFromConfig[T](db, c, cfg)
 
 		id := c.Param("id")
 		if err := query.First(&obj, id).Error; err != nil {
@@ -45,11 +56,11 @@ func GET[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 			return
 		}
 		c.JSON(http.StatusOK, obj)
-	})
+	})...)
 }
 
 func POST[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
-	r.POST(path, func(c *gin.Context) {
+	r.POST(path, append(getHandlersFromConfig(cfg), func(c *gin.Context) {
 		var obj T
 		if err := c.ShouldBindJSON(&obj); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -60,13 +71,13 @@ func POST[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 			return
 		}
 		c.JSON(http.StatusCreated, obj)
-	})
+	})...)
 }
 
 func PUT[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
-	r.PUT(path+"/:id", func(c *gin.Context) {
+	r.PUT(path+"/:id", append(getHandlersFromConfig(cfg), func(c *gin.Context) {
 		var obj T
-		query := applyFilters[T](db, nil, cfg)
+		query := getQueryFromConfig[T](db, nil, cfg)
 
 		id := c.Param("id")
 		if err := query.First(&obj, id).Error; err != nil {
@@ -82,13 +93,13 @@ func PUT[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 			return
 		}
 		c.JSON(http.StatusOK, obj)
-	})
+	})...)
 }
 
 func DELETE[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
-	r.DELETE(path+"/:id", func(c *gin.Context) {
+	r.DELETE(path+"/:id", append(getHandlersFromConfig(cfg), func(c *gin.Context) {
 		var obj T
-		query := applyFilters[T](db, nil, cfg)
+		query := getQueryFromConfig[T](db, nil, cfg)
 
 		id := c.Param("id")
 		if err := query.First(&obj, id).Error; err != nil {
@@ -100,5 +111,5 @@ func DELETE[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 			return
 		}
 		c.Status(http.StatusNoContent)
-	})
+	})...)
 }
