@@ -6,8 +6,49 @@ import (
 	"net/http"
 )
 
-func API[T any](r *gin.Engine, db *gorm.DB, path string) {
-	// Create
+type Filter[T any] func(db *gorm.DB, c *gin.Context) *gorm.DB
+
+type Config struct {
+	Filters []Filter[any]
+}
+
+func applyFilters[T any](db *gorm.DB, c *gin.Context, cfg *Config) *gorm.DB {
+	query := db.Model(new(T))
+	if cfg.Filters != nil {
+		for _, filter := range cfg.Filters {
+			query = filter(db, c)
+		}
+	}
+
+	return query
+}
+
+func GET[T any](r *gin.Engine, db *gorm.DB, path string, id string, cfg *Config) {
+	r.GET(path, func(c *gin.Context) {
+		var objs []T
+		query := applyFilters[T](db, c, cfg)
+
+		if err := query.Find(&objs).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, objs)
+	})
+
+	r.GET(path+"/:id", func(c *gin.Context) {
+		var obj T
+		query := applyFilters[T](db, c, cfg)
+
+		id := c.Param("id")
+		if err := query.First(&obj, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			return
+		}
+		c.JSON(http.StatusOK, obj)
+	})
+}
+
+func POST[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 	r.POST(path, func(c *gin.Context) {
 		var obj T
 		if err := c.ShouldBindJSON(&obj); err != nil {
@@ -20,33 +61,15 @@ func API[T any](r *gin.Engine, db *gorm.DB, path string) {
 		}
 		c.JSON(http.StatusCreated, obj)
 	})
+}
 
-	// Get many
-	r.GET(path, func(c *gin.Context) {
-		var objs []T
-		if err := db.Find(&objs).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-		c.JSON(http.StatusOK, objs)
-	})
-
-	// Get one
-	r.GET(path+"/:id", func(c *gin.Context) {
-		var obj T
-		id := c.Param("id")
-		if err := db.First(&obj, id).Error; err != nil {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-			return
-		}
-		c.JSON(http.StatusOK, obj)
-	})
-
-	// Update
+func PUT[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 	r.PUT(path+"/:id", func(c *gin.Context) {
 		var obj T
+		query := applyFilters[T](db, nil, cfg)
+
 		id := c.Param("id")
-		if err := db.First(&obj, id).Error; err != nil {
+		if err := query.First(&obj, id).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
@@ -60,12 +83,15 @@ func API[T any](r *gin.Engine, db *gorm.DB, path string) {
 		}
 		c.JSON(http.StatusOK, obj)
 	})
+}
 
-	// Delete
+func DELETE[T any](r *gin.Engine, db *gorm.DB, path string, cfg *Config) {
 	r.DELETE(path+"/:id", func(c *gin.Context) {
 		var obj T
+		query := applyFilters[T](db, nil, cfg)
+
 		id := c.Param("id")
-		if err := db.First(&obj, id).Error; err != nil {
+		if err := query.First(&obj, id).Error; err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 			return
 		}
