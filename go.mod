@@ -1,4 +1,4 @@
-module github.com/LeoTurnell-Ritson/gapi
+module github.com/LeoTurnell-Ritson/gorest
 
 go 1.23.2
 

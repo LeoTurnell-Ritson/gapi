@@ -1,4 +1,4 @@
-package gapi
+package gorest
 
 import (
 	"github.com/gin-gonic/gin"
