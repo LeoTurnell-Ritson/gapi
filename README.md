@@ -8,7 +8,7 @@ GoREST is a simple and lightweight REST API builder for Go. Designed to work wit
 
 ## Features
 
-- [x] Automatic CRUD endpoint generation
+- [x] Automatic endpoint generation
 - [x] Automatic filtering of struct fields by query parameters
 
 ## Usage
@@ -29,6 +29,12 @@ type User struct {
     Email string  `json:"email"`
 }
 
+type Order struct {
+    ID      uint  `json:"id" gorm:"primaryKey"`
+    Item  string  `json:"item"`
+    Quantity int  `json:"quantity"`
+}
+
 func main() {
     // Initialize Gorm with a SQLite database
     r := gin.Default()
@@ -41,12 +47,19 @@ func main() {
     // Add the GoREAT and Gorm middleware
     r.Use(gorest.GormMiddleware(db))
 
-    // Register the all CRUD endpoints for the User struct
-    // in one call
-    gorest.Rest[User](r, "/users", &gorest.Config{
+    // Register the all endpoints, GET, POST, PUT and DELETE, for the User struct
+    // in one call:
+    // GET /users  - List all users
+    // GET /users/:id - Get a user by ID
+    // POST /users - Create a new user
+    // PUT /users/:id - Update a user by ID
+    // DELETE /users/:id - Delete a user by ID
+    gorest.Rest[User](r, "/users", &gorest.Config{})
+
+    // Register only the GET endpoints for the Order struct
+    gorest.Get[Order](r, "/orders", &gorest.Config{
         AddQueryParams: true,  // Enable automatic filtering by query parameters
     })
-
 
     // Start the server
     r.Run(":8080")
