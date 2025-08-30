@@ -38,7 +38,7 @@ type Order struct {
 }
 
 func main() {
-    // Initialize Gorm with a SQLite database
+    // Initialize Gorm with a SQLite database.
     r := gin.Default()
     db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
     if err != nil {
@@ -46,8 +46,14 @@ func main() {
     }
     db.AutoMigrate(&User{})
 
-    // Add the REQUIRED Gorm middleware
+    // Add the REQUIRED Gorm middleware. 
     r.Use(gorest.GormMiddleware(db))
+    // Allternatively, you can use add the 
+    // middleware via the gorest.Config struct when registering endpoints,
+    // avoiding polluting the global route handlers. For example:
+    // gorest.Rest[User](r, "/users", &gorest.Config{
+    //      Handlers: []gin.HandlerFunc{GormHandlerFunc(db)},
+    // })
 
     // Register the all endpoints, GET, POST, PUT and DELETE, for the User struct
     // in one call:
