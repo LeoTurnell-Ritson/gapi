@@ -62,7 +62,7 @@ func main() {
     // automatic filtering by query parameters:
     // GET /orders?item=foo&quantity=10 - List all orders with item "foo" and quantity 10
     gorest.Get[Order](r, "/orders", &gorest.Config{
-        AddQueryParams: true,  // Enable automatic filtering by query parameters
+        AddQueryParams: true,
     })
 
     // Start the server
