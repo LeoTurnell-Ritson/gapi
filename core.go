@@ -54,7 +54,7 @@ func QueryParamsHandlerFuncs[T any]() []gin.HandlerFunc {
 	return handlers
 }
 
-func Get[T any](r *gin.Engine, path string, cfg *Config) {
+func Read[T any](r *gin.Engine, path string, cfg *Config) {
 	var handlers []gin.HandlerFunc
 	if cfg.AddQueryParams{
 		handlers = append(cfg.Handlers, QueryParamsHandlerFuncs[T]()...)
@@ -138,9 +138,9 @@ func Delete[T any](r *gin.Engine, path string, cfg *Config) {
 	})...)
 }
 
-func All[T any](r *gin.Engine, path string, cfg *Config) {
-	Get[T](r, path, cfg)
+func CRUD[T any](r *gin.Engine, path string, cfg *Config) {
 	Create[T](r, path, cfg)
+	Read[T](r, path, cfg)
 	Update[T](r, path, cfg)
 	Delete[T](r, path, cfg)
 }
