@@ -5,10 +5,9 @@
 [![version](https://img.shields.io/github/v/tag/LeoTurnell-Ritson/gorest?label=version&sort=semver)](https://github.com/LeoTurnell-Ritson/gorest/tags)
 [![license](https://img.shields.io/github/license/LeoTurnell-Ritson/gorest)](https://github.com/LeoTurnell-Ritson/gorest/blob/master/LICENSE)
 
+GoREST is a lightweight REST API builder for Go, built on Gin and Gorm. It generates RESTful endpoints directly from your struct definitions, letting you spin up APIs quickly with minimal boilerplate.
 
-GoREST is a simple and lightweight REST API builder for Go. Designed to work with Gin and Gorm, it provides a quick way to create RESTful APIs with minimal boilerplate, from your struct definitions.
-
-The library is designed to add to an existing Gin application without interfering with existing routes or middleware. Intentionally not adding an additional abstraction layer warping the routing engine. The same applies to how the Gorm database connection is handled.
+The library is designed to be additive rather than intrusive. It drops cleanly into an existing Gin application without interfering with your routes or middleware. Likewise, it doesn’t wrap or replace your Gorm connection—your database stays in your hands. By avoiding unnecessary abstraction layers, GoREST keeps your application transparent, flexible, and easy to maintain.
 
 ## Feature Roadmap
 
