@@ -2,7 +2,7 @@
 
 [![tests](https://img.shields.io/github/actions/workflow/status/LeoTurnell-Ritson/gorest/go-tests.yml?label=tests)](https://github.com/LeoTurnell-Ritson/gorest/actions/workflows/go-tests.yml)
 [![codecov](https://codecov.io/gh/LeoTurnell-Ritson/gorest/graph/badge.svg?token=5JNQSV243V)](https://codecov.io/gh/LeoTurnell-Ritson/gorest)
-![version](https://img.shields.io/github/v/tag/LeoTurnell-Ritson/gorest?label=version&sort=semver)
+[![version](https://img.shields.io/github/v/tag/LeoTurnell-Ritson/gorest?label=version&sort=semver)](https://github.com/LeoTurnell-Ritson/gorest/tags)
 
 GoREST is a simple and lightweight REST API builder for Go. Designed to work with Gin and Gorm, it provides a quick way to create RESTful APIs with minimal boilerplate, from your struct definitions.
 
@@ -11,8 +11,51 @@ GoREST is a simple and lightweight REST API builder for Go. Designed to work wit
 - [x] Automatic CRUD endpoint generation
 - [x] Automatic filtering of struct fields by query parameters
 
+## Usage
+
+```go
+package main
+
+import (
+    "github.com/LeoTurnell-Ritson/gorest"
+    "github.com/gin-gonic/gin"
+    "gorm.io/driver/sqlite"
+    "gorm.io/gorm"
+)
+
+type User struct {
+    ID    uint    `json:"id" gorm:"primaryKey"`
+    Name  string  `json:"name"`
+    Email string  `json:"email"`
+}
+
+func main() {
+    // Initialize Gorm with a SQLite database
+    r := gin.Default()
+    db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+    if err != nil {
+        panic("failed to connect database")
+    }
+    db.AutoMigrate(&User{})
+
+    // Add the GoREAT and Gorm middleware
+    r.Use(gorest.GormMiddleware(db))
+
+    // Register the all CRUD endpoints for the User struct
+    // in one call
+    gorest.Rest[User](r, "/users", &gorest.Config{
+        AddQueryParams: true,  // Enable automatic filtering by query parameters
+    })
+
+
+    // Start the server
+    r.Run(":8080")
+}
+```
+
 ## Roadmap
 
 - [ ] Automatic pagination
 - [ ] Automatic sorting
 - [ ] More filtering customisation
+- [ ] Security scanning continuous integration
