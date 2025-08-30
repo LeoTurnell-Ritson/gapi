@@ -1,6 +1,6 @@
-# GoRest
+# GoREST
 
-[![Go Tests](https://github.com/LeoTurnelli-Ritson/gorest/actions/workflows/go-tests.yml/badge.svg)](https://github.com/LeoTurnell-Ritson/gorest/actions/workflows/go-test.yml)
+[![Go Tests](https://github.com/LeoTurnell-Ritson/gorest/actions/workflows/go-tests.yml/badge.svg)](https://github.com/LeoTurnell-Ritson/gorest/actions/workflows/go-tests.yml)
 [![codecov](https://codecov.io/gh/LeoTurnell-Ritson/gorest/graph/badge.svg?token=5JNQSV243V)](https://codecov.io/gh/LeoTurnell-Ritson/gorest)
 
 GoREST is a simple and lightweight REST API builder for Go. Built on top of Gin and Gorm, it provides a quick way to create RESTful APIs with minimal boilerplate, from your Go struct definitions.
