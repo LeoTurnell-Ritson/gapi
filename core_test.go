@@ -19,6 +19,7 @@ import (
 type Dummy struct {
 	ID int `json:"id" gorm:"primaryKey"`
 	Name string `json:"name" binding:"required"`
+	Value int `json:"value"`
 }
 
 func setupTestRouter(db *gorm.DB) *gin.Engine {
@@ -29,7 +30,9 @@ func setupTestRouter(db *gorm.DB) *gin.Engine {
 	r.Use(GormHandlerFunc(db))
 
 	// Setup routes
-	Rest[Dummy](r, "/dummies", &Config{})
+	Rest[Dummy](r, "/dummies", &Config{
+		AddQueryParams: true,
+	})
 
 	return r
 }
@@ -50,7 +53,7 @@ func setupTestDummiesData(n int, db *gorm.DB) {
 	var dummies []Dummy
 	for i := 1; i <= n; i++ {
 		name := "Dummy " + strconv.Itoa(i)
-		dummies = append(dummies, Dummy{ID: i, Name: name})
+		dummies = append(dummies, Dummy{ID: i, Name: name, Value: i})
 	}
 	db.Create(&dummies)
 }
@@ -92,6 +95,53 @@ func TestGetDummy(t *testing.T) {
 	}
 	if len(dummies) != count || dummies[0].Name != "Dummy 1" {
 		t.Fatalf("Unexpected response data: %v", dummies)
+	}
+}
+
+func TestGetDummyByQueryParam(t *testing.T) {
+	db := setupTestDB()
+	r := setupTestRouter(db)
+	count := 5
+
+	// Insert dummy records
+	setupTestDummiesData(count, db)
+
+	// Perform GET request with query param
+	w := requestTest(r, "GET", "/dummies?name=Dummy 4&value=4&id=4", nil)
+
+	// Test response
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected status 200 but got %d", w.Code)
+	}
+	var dummies []Dummy
+	if err := json.Unmarshal(w.Body.Bytes(), &dummies); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+	if len(dummies) != 1 || dummies[0].Name != "Dummy 4" {
+		t.Fatalf("Unexpected response data: %v", dummies)
+	}
+}
+
+func TestGetDummyByQueryParamNotFound(t *testing.T) {
+	db := setupTestDB()
+	r := setupTestRouter(db)
+
+	// Insert dummy records
+	setupTestDummiesData(3, db)
+
+	// Perform GET request with non-matching query param
+	w := requestTest(r, "GET", "/dummies?name=Dummy 1&value=2", nil)
+
+	// Test response
+	if w.Code != http.StatusOK {
+		t.Fatalf("Expected status 200 but got %d", w.Code)
+	}
+	var dummies []Dummy
+	if err := json.Unmarshal(w.Body.Bytes(), &dummies); err != nil {
+		t.Fatalf("Failed to parse response: %v", err)
+	}
+	if len(dummies) != 0 {
+		t.Fatalf("Expected empty result but got: %v", dummies)
 	}
 }
 

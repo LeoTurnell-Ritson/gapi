@@ -4,10 +4,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"net/http"
+	"reflect"
 )
 
 type Config struct {
 	Handlers []gin.HandlerFunc
+	AddQueryParams bool
 }
 
 func GormHandlerFunc(db *gorm.DB) gin.HandlerFunc {
@@ -18,8 +20,49 @@ func GormHandlerFunc(db *gorm.DB) gin.HandlerFunc {
 	}
 }
 
+func QueryParamsHandlerFuncs[T any]() []gin.HandlerFunc {
+	var handlers []gin.HandlerFunc
+	tType := reflect.TypeOf((*T)(nil)).Elem()
+	if tType.Kind() != reflect.Struct {
+		panic("QueryParamsHandlerFunc expects type T to be a struct type")
+	}
+
+	for i := range make([]struct{}, tType.NumField()) {
+		var fieldName string
+
+		field := tType.Field(i)
+		jsonTag := field.Tag.Get("json")
+		if jsonTag != "" && jsonTag != "-" {
+			fieldName = jsonTag
+		} else {
+			continue
+		}
+
+		handlers = append(handlers, func(fieldName string) gin.HandlerFunc {
+			return func(c *gin.Context) {
+				db := c.MustGet("db").(*gorm.DB)
+				if value, exists := c.GetQuery(fieldName); exists {
+					db = db.Where(fieldName+" = ?", value)
+				}
+
+				c.Set("db", db)
+				c.Next()
+			}
+		}(fieldName))
+	}
+
+	return handlers
+}
+
 func Get[T any](r *gin.Engine, path string, cfg *Config) {
-	r.GET(path, append(cfg.Handlers, func(c *gin.Context) {
+	var handlers []gin.HandlerFunc
+	if cfg.AddQueryParams{
+		handlers = append(cfg.Handlers, QueryParamsHandlerFuncs[T]()...)
+	} else {
+		handlers = cfg.Handlers
+	}
+
+	r.GET(path, append(handlers, func(c *gin.Context) {
 		var objs []T
 		db := c.MustGet("db").(*gorm.DB)
 		if err := db.Find(&objs).Error; err != nil {
