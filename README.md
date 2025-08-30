@@ -1,6 +1,6 @@
 # :sleeping: GoREST :sleeping:
 
-[![tests](https://github.com/LeoTurnell-Ritson/gorest/actions/workflows/go-tests.yml/badge.svg?label=tests)](https://github.com/LeoTurnell-Ritson/gorest/actions/workflows/go-tests.yml)
+[![tests](https://img.shields.io/github/actions/workflow/status/LeoTurnell-Ritson/gorest/go-tests.yml?label=tests)](https://github.com/LeoTurnell-Ritson/gorest/actions/workflows/go-tests.yml)
 [![codecov](https://codecov.io/gh/LeoTurnell-Ritson/gorest/graph/badge.svg?token=5JNQSV243V)](https://codecov.io/gh/LeoTurnell-Ritson/gorest)
 ![version](https://img.shields.io/github/v/tag/LeoTurnell-Ritson/gorest?label=version&sort=semver)
 
