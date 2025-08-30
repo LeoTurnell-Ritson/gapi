@@ -10,10 +10,18 @@ GoREST is a simple and lightweight REST API builder for Go. Designed to work wit
 
 The library is designed to add to an existing Gin application without interfering with existing routes or middleware. Intentionally not adding an additional abstraction layer warping the routing engine. The same applies to how the Gorm database connection is handled.
 
-## Features
+## Feature Roadmap
+
+This is the current list of features planned and implimented for a feature complete 1.0.0 release.
 
 - [x] Automatic endpoint generation
 - [x] Automatic filtering of struct fields by query parameters
+- [ ] Add support for RESTful hypermedia
+- [ ] Add for complex relationships between structs
+- [ ] Automatic pagination
+- [ ] Automatic sorting
+- [ ] More filtering customisation
+- [ ] Security scanning continuous integration
 
 ## Usage
 
@@ -78,10 +86,3 @@ func main() {
     r.Run(":8080")
 }
 ```
-
-## Roadmap
-
-- [ ] Automatic pagination
-- [ ] Automatic sorting
-- [ ] More filtering customisation
-- [ ] Security scanning continuous integration
