@@ -52,7 +52,7 @@ func main() {
     // Alternatively, you can use add the middleware via the gorest.Config 
     // struct when registering endpoints, avoiding polluting the global 
     // route handlers. For example:
-    // gorest.Rest[User](r, "/users", &gorest.Config{
+    // gorest.All[User](r, "/users", &gorest.Config{
     //      Handlers: []gin.HandlerFunc{GormHandlerFunc(db)},
     // })
 
@@ -63,7 +63,7 @@ func main() {
     // POST /users - Create a new user
     // PUT /users/:id - Update a user by ID
     // DELETE /users/:id - Delete a user by ID
-    gorest.Rest[User](r, "/users", &gorest.Config{})
+    gorest.All[User](r, "/users", &gorest.Config{})
 
     // Register only the GET endpoints for the Order struct, as well as enabling
     // automatic filtering by query parameters:

@@ -31,7 +31,7 @@ func setupTestRouter(db *gorm.DB) *gin.Engine {
 	r.Use(GormHandlerFunc(db))
 
 	// Setup routes
-	Rest[Dummy](r, "/dummies", &Config{
+	All[Dummy](r, "/dummies", &Config{
 		AddQueryParams: true,
 	})
 

@@ -138,7 +138,7 @@ func Delete[T any](r *gin.Engine, path string, cfg *Config) {
 	})...)
 }
 
-func Rest[T any](r *gin.Engine, path string, cfg *Config) {
+func All[T any](r *gin.Engine, path string, cfg *Config) {
 	Get[T](r, path, cfg)
 	Create[T](r, path, cfg)
 	Update[T](r, path, cfg)
