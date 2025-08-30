@@ -17,9 +17,10 @@ import (
 
 
 type Dummy struct {
-	ID int `json:"id" gorm:"primaryKey"`
-	Name string `json:"name" binding:"required"`
-	Value int `json:"value"`
+	ID    int    `json:"id" gorm:"primaryKey"`
+	Name  string `json:"name" binding:"required"`
+	Value int    `json:"value"`
+	Skip  string `json:"-"`
 }
 
 func setupTestRouter(db *gorm.DB) *gin.Engine {
