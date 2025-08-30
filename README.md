@@ -48,9 +48,10 @@ func main() {
 
     // Add the REQUIRED Gorm middleware. 
     r.Use(gorest.GormMiddleware(db))
-    // Allternatively, you can use add the 
-    // middleware via the gorest.Config struct when registering endpoints,
-    // avoiding polluting the global route handlers. For example:
+
+    // Alternatively, you can use add the middleware via the gorest.Config 
+    // struct when registering endpoints, avoiding polluting the global 
+    // route handlers. For example:
     // gorest.Rest[User](r, "/users", &gorest.Config{
     //      Handlers: []gin.HandlerFunc{GormHandlerFunc(db)},
     // })
